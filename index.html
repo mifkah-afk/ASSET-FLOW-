@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Aplikasi Peminjaman Barang — SMK</title>
   <style>
-    /* Definisi Warna Tema */
+    /* Definisi Warna Tema Terang (Default) */
     :root{
       --accent:#1fb6a1;
       --muted:#6b7280;
@@ -17,55 +17,49 @@
 
     /* DARK MODE */
     body.dark-mode {
-      --accent:#4c8cff; /* A different, bright accent for dark mode */
+      --accent:#4c8cff;
       --muted:#9ca3af;
-      --bg:#1f2937; /* Dark background */
-      --card:#374151; /* Darker card background */
-      --text:#f8fafc; /* Light text */
+      --bg:#1f2937;
+      --card:#374151;
+      --text:#f8fafc;
       --shadow-color:rgba(0,0,0,0.4);
     }
 
     *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
-    body{margin:0;background:var(--bg);color:var(--text)} /* Menggunakan var(--text) */
+    body{margin:0;background:var(--bg);color:var(--text)} 
     header{background:linear-gradient(90deg,var(--accent),#2fa8ff);color:white;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
     header h1{font-size:18px;margin:0}
     .container{max-width:1100px;margin:20px auto;padding:16px}
-    /* Menggunakan var(--shadow-color) dan var(--card) */
     .card{background:var(--card);border-radius:12px;box-shadow:0 6px 18px var(--shadow-color);padding:16px;margin-bottom:16px}
     .grid{display:grid;gap:12px}
     .grid-3{grid-template-columns:repeat(3,1fr)}
     .btn{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+    /* Tombol secondary pada dark mode */
     .btn.secondary{background:#eef2ff;color:#1f2937}
-
-    /* Penyesuaian input untuk Tema Gelap */
+    body.dark-mode .btn.secondary{background:#4b5563; color:var(--text);}
+    
     input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e6e9ef; color: var(--text); background: var(--card);}
     body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
       background: #4b5563;
       border-color: #4b5563;
     }
 
-    /* Specific overrides for disabled/automatic inputs */
-    #loanBorrowDate {
-      background-color: #f1f5f9; /* Light mode specific disabled color */
-    }
-    body.dark-mode #loanBorrowDate{
-      background-color: #374151 !important; /* Dark mode specific disabled color */
-    }
+    /* Disabled input style */
+    #loanBorrowDate { background-color: #f1f5f9; }
+    body.dark-mode #loanBorrowDate{ background-color: #374151 !important; }
 
     table{width:100%;border-collapse:collapse}
     th,td{padding:8px;border-bottom:1px solid #eef2f5;text-align:left}
-    body.dark-mode th, body.dark-mode td {
-      border-bottom: 1px solid #4b5563; /* Dark mode table separator */
-    }
+    body.dark-mode th, body.dark-mode td { border-bottom: 1px solid #4b5563; }
+    
     .muted{color:var(--muted)}
     .topbar{display:flex;gap:12px;align-items:center}
     .hidden{display:none}
     .actions button{margin-right:6px}
     .stats{display:flex;gap:12px}
     .stat{flex:1;padding:12px;border-radius:8px;background:linear-gradient(180deg,#fff,#f7fdff);text-align:center}
-    body.dark-mode .stat{
-      background:linear-gradient(180deg, #374151, #4b5563); /* Dark mode stat background */
-    }
+    body.dark-mode .stat{ background:linear-gradient(180deg, #374151, #4b5563); }
+    
     @media(max-width:800px){.grid-3{grid-template-columns:1fr}.topbar{flex-direction:column;align-items:stretch}}
   </style>
 </head>
@@ -97,13 +91,14 @@
           <div class="muted" id="appClock"></div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
-                    <button id="themeToggleApp" class="btn secondary" data-listener-attached="false">☀️ Tema Terang</button>
+                    <button id="themeToggleApp" class="btn secondary">☀️ Tema Terang</button>
           <button id="btnLogout" class="btn secondary">Logout</button>
         </div>
       </div>
 
       <div class="grid grid-3">
-        <div class="card" style="grid-column: span 2;">           <h3>Statistik Peminjaman</h3>
+        <div class="card" style="grid-column: span 2;">
+          <h3>Statistik Peminjaman</h3>
           <div class="stats" style="margin-top:10px">
             <div class="stat">
               <div class="muted">Total Pinjaman Saat Ini</div>
@@ -180,7 +175,7 @@
   <script>
     // Simple localStorage-based app
     const LS_KEYS = {HISTORY:'peminjaman_history_v2',ADMINS:'peminjaman_admins_v2'};
-    const LS_THEME_KEY = 'peminjaman_theme_preference'; // Key baru untuk tema
+    const LS_THEME_KEY = 'peminjaman_theme_preference'; 
 
     // Default admin
     function ensureDefaults(){
@@ -211,6 +206,7 @@
         const isDark = theme === 'dark';
         const text = isDark ? '🌙 Tema Gelap' : '☀️ Tema Terang';
         
+        // Memastikan elemen tombol ada sebelum diubah (penting saat transisi antar halaman)
         const btnLogin = $('themeToggleLogin');
         const btnApp = $('themeToggleApp');
         
@@ -381,9 +377,10 @@
       $('headerRight').textContent = currentAdmin? currentAdmin.username : ''; 
       $('welcomeAdmin').textContent = 'Halo, '+(currentAdmin?currentAdmin.username:'Admin'); 
       
-      // Pasang Listener Tema untuk Halaman Aplikasi
+      // Memastikan event listener tema terpasang saat aplikasi ditampilkan (perbaikan utama)
       const btnApp = $('themeToggleApp');
-      if (btnApp && btnApp.getAttribute('data-listener-attached') === 'false') {
+      // Hanya pasang event listener jika belum terpasang
+      if (btnApp && !btnApp.hasAttribute('data-listener-attached')) {
         btnApp.addEventListener('click', toggleTheme);
         btnApp.setAttribute('data-listener-attached', 'true');
       }
@@ -403,14 +400,14 @@
       window.openReturnModal=openReturnModal;
       window.closeReturnModal=closeReturnModal;
 
-      // Pasang Listener Tema untuk Halaman Login
+      // Memastikan listener tombol login terpasang sebelum elemen lain dimuat
       $('themeToggleLogin').addEventListener('click', toggleTheme);
       
       setLoanDate(); 
       loadAll();
-      applyInitialTheme(); // Terapkan tema yang tersimpan
+      applyInitialTheme();
     })();
 
   </script>
 </body>
-</html>
+  </html>
