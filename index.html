@@ -1,198 +1,243 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Peminjaman Barang SMK</title>
-<style>
-    body{
-        font-family: Arial, sans-serif;
-        background: #eef6f8;
-        margin:0;
-        padding:20px;
-    }
-    h1{
-        text-align:center;
-        color:#117a8b;
-        margin-bottom:20px;
-    }
-    .container{
-        max-width:900px;
-        margin:auto;
-        background:white;
-        padding:20px;
-        border-radius:10px;
-        box-shadow:0 3px 10px rgba(0,0,0,0.1);
-    }
-    .form-section{
-        background:#f4fbfd;
-        padding:15px;
-        border-radius:10px;
-        margin-bottom:20px;
-        border-left:5px solid #17a2b8;
-    }
-    label{
-        font-weight:bold;
-    }
-    input,select{
-        width:100%;
-        padding:10px;
-        margin:5px 0 15px;
-        border:1px solid #bbb;
-        border-radius:5px;
-    }
-    button{
-        padding:10px 15px;
-        border:none;
-        border-radius:5px;
-        cursor:pointer;
-        font-weight:bold;
-    }
-    .btn-submit{ background:#17a2b8; color:white; }
-    .btn-submit:hover{ background:#138496; }
-    .btn-export{ background:#28a745; color:white; }
-    .btn-export:hover{ background:#218838; }
-    .btn-print{ background:#ffc107; color:black; }
-    .btn-print:hover{ background:#e0a800; }
-
-    table{
-        width:100%;
-        border-collapse:collapse;
-        margin-top:20px;
-    }
-    th,td{
-        border:1px solid #ccc;
-        padding:10px;
-        text-align:left;
-    }
-    th{
-        background:#17a2b8;
-        color:white;
-    }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aplikasi Peminjaman Barang — SMK</title>
+  <style>
+    :root{--accent:#1fb6a1;--muted:#6b7280;--bg:#f8fafc;--card:#ffffff}
+    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{margin:0;background:var(--bg);color:#0f172a}
+    header{background:linear-gradient(90deg,var(--accent),#2fa8ff);color:white;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+    header h1{font-size:18px;margin:0}
+    .container{max-width:1100px;margin:20px auto;padding:16px}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 6px 18px rgba(20,20,50,0.06);padding:16px;margin-bottom:16px}
+    .grid{display:grid;gap:12px}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    .btn{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+    .btn.secondary{background:#eef2ff;color:#1f2937}
+    input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e6e9ef}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid #eef2f5;text-align:left}
+    .muted{color:var(--muted)}
+    .topbar{display:flex;gap:12px;align-items:center}
+    .hidden{display:none}
+    .actions button{margin-right:6px}
+    .stats{display:flex;gap:12px}
+    .stat{flex:1;padding:12px;border-radius:8px;background:linear-gradient(180deg,#fff,#f7fdff);text-align:center}
+    @media(max-width:800px){.grid-3{grid-template-columns:1fr}.topbar{flex-direction:column;align-items:stretch}}
+  </style>
 </head>
 <body>
+  <header>
+    <h1>Aplikasi Peminjaman Barang — SMK</h1>
+    <div id="headerRight" class="muted"></div>
+  </header>  <main class="container">
+    <!-- LOGIN -->
+    <section id="loginSection" class="card">
+      <h2>Masuk Admin</h2>
+      <p class="muted">Gunakan username & password default, atau buat admin baru melalui LocalStorage.</p>
+      <div style="max-width:420px">
+        <label>Username</label>
+        <input id="loginUser" value="admin" />
+        <label style="margin-top:8px">Password</label>
+        <input id="loginPass" type="password" value="admin123" />
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button id="loginBtn" class="btn">Masuk</button>
+          <button id="resetData" class="btn secondary">Reset Data</button>
+        </div>
+      </div>
+    </section><!-- APP -->
+<section id="appSection" class="hidden">
+  <div class="card topbar">
+    <div style="flex:1">
+      <strong id="welcomeAdmin">Welcome, Admin</strong>
+      <div class="muted" id="appClock"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="btnLogout" class="btn secondary">Logout</button>
+    </div>
+  </div>
 
-<h1>📦 Sistem Peminjaman & Pengembalian Barang</h1>
-
-<div class="container">
-
-    <!-- FORM PEMINJAMAN -->
-    <div class="form-section">
-        <h2>Peminjaman Barang</h2>
-        <label>Nama Peminjam</label>
-        <input type="text" id="pinjam_nama">
-
-        <label>Nama Barang</label>
-        <input type="text" id="pinjam_barang">
-
-        <label>Tanggal Pinjam</label>
-        <input type="date" id="pinjam_tanggal">
-
-        <button class="btn-submit" onclick="tambahPinjam()">Simpan Peminjaman</button>
+  <div class="grid grid-3">
+    <div class="card">
+      <h3>Statistik</h3>
+      <div class="stats" style="margin-top:10px">
+        <div class="stat">
+          <div class="muted">Total Barang</div>
+          <div id="statItems" style="font-size:20px;font-weight:700">0</div>
+        </div>
+        <div class="stat">
+          <div class="muted">Sedang Dipinjam</div>
+          <div id="statOut" style="font-size:20px;font-weight:700">0</div>
+        </div>
+        <div class="stat">
+          <div class="muted">Total Riwayat</div>
+          <div id="statHistory" style="font-size:20px;font-weight:700">0</div>
+        </div>
+      </div>
     </div>
 
-    <!-- FORM PENGEMBALIAN -->
-    <div class="form-section">
-        <h2>Pengembalian Barang</h2>
-        <label>Nama Peminjam</label>
-        <input type="text" id="kembali_nama">
-
+    <div class="card">
+      <h3>Tambah / Edit Barang</h3>
+      <form id="itemForm">
+        <input type="hidden" id="itemId" />
         <label>Nama Barang</label>
-        <input type="text" id="kembali_barang">
-
-        <label>Tanggal Kembali</label>
-        <input type="date" id="kembali_tanggal">
-
-        <button class="btn-submit" onclick="tambahKembali()">Simpan Pengembalian</button>
+        <input id="itemName" required />
+        <label>Jumlah</label>
+        <input id="itemQty" type="number" min="1" value="1" required />
+        <label>Lokasi / Keterangan</label>
+        <input id="itemLoc" />
+        <div style="margin-top:8px"><button class="btn">Simpan Barang</button></div>
+      </form>
     </div>
 
-    <!-- TABEL -->
-    <h2>Data Transaksi</h2>
-    <table id="tabel">
-        <thead>
-            <tr>
-                <th>Nama</th>
-                <th>Barang</th>
-                <th>Status</th>
-                <th>Tanggal</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div class="card">
+      <h3>Form Peminjaman</h3>
+      <form id="loanForm">
+        <label>Pilih Barang</label>
+        <select id="loanItem"></select>
+        <label>Nama Peminjam</label>
+        <input id="loanName" required />
+        <label>Jumlah</label>
+        <input id="loanQty" type="number" min="1" value="1" required />
+        <label>Tanggal Kembali (opsional)</label>
+        <input id="loanDue" type="date" />
+        <div style="margin-top:8px"><button class="btn">Pinjam</button></div>
+      </form>
+    </div>
+  </div>
 
-    <br>
-    <button class="btn-export" onclick="exportDoc()">Export DOCX</button>
-    <button class="btn-print" onclick="window.print()">Print</button>
+  <div class="card">
+    <h3>Daftar Barang</h3>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input id="searchItem" placeholder="Cari nama atau lokasi..." />
+      <button id="exportBtn" class="btn secondary">Export JSON</button>
+      <input id="importFile" type="file" accept="application/json" />
+    </div>
+    <div style="overflow:auto;max-height:240px">
+      <table id="itemsTable"><thead><tr><th>Nama</th><th>Qty</th><th>Lokasi</th><th>Aksi</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
 
-</div>
+  <div class="card">
+    <h3>Riwayat Peminjaman</h3>
+    <div style="overflow:auto;max-height:320px">
+      <table id="historyTable"><thead><tr><th>Barang</th><th>Peminjam</th><th>Qty</th><th>Tgl Pinjam</th><th>Tgl Kembali</th><th>Status</th><th>Aksi</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+</section>
 
-<script>
-let data = [];
+<footer style="text-align:center;color:var(--muted);margin-top:10px">Aplikasi sederhana — data disimpan di LocalStorage</footer>
 
-function tambahPinjam(){
-    let nama = document.getElementById("pinjam_nama").value;
-    let barang = document.getElementById("pinjam_barang").value;
-    let tanggal = document.getElementById("pinjam_tanggal").value;
+  </main>  <script>
+    // Simple localStorage-based app
+    const LS_KEYS = {ITEMS:'peminjaman_items_v1',HISTORY:'peminjaman_history_v1',ADMINS:'peminjaman_admins_v1'};
 
-    if(nama=="" || barang=="" || tanggal==""){
-        alert("Lengkapi semua data!");
-        return;
+    // Default admin
+    function ensureDefaults(){
+      if(!localStorage.getItem(LS_KEYS.ADMINS)){
+        const admins = [{username:'admin',password:'admin123'}];
+        localStorage.setItem(LS_KEYS.ADMINS,JSON.stringify(admins));
+      }
+      if(!localStorage.getItem(LS_KEYS.ITEMS)) localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify([]));
+      if(!localStorage.getItem(LS_KEYS.HISTORY)) localStorage.setItem(LS_KEYS.HISTORY,JSON.stringify([]));
+    }
+    ensureDefaults();
+
+    // Helpers
+    const $ = id=>document.getElementById(id);
+    const q = sel=>document.querySelector(sel);
+    function uid(prefix='id'){return prefix+Date.now()+Math.floor(Math.random()*999)}
+
+    // Auth
+    let currentAdmin = null;
+    $('loginBtn').addEventListener('click',e=>{e.preventDefault();login()});
+    function login(){
+      const u=$('loginUser').value.trim();
+      const p=$('loginPass').value;
+      const admins = JSON.parse(localStorage.getItem(LS_KEYS.ADMINS)||'[]');
+      const found = admins.find(a=>a.username===u && a.password===p);
+      if(found){ currentAdmin=found; showApp(); } else alert('Login gagal — cek username/password');
+    }
+    $('btnLogout').addEventListener('click',()=>{currentAdmin=null; showLogin();});
+    $('resetData').addEventListener('click',()=>{ if(confirm('Reset semua data ke default?')){ localStorage.removeItem(LS_KEYS.ITEMS); localStorage.removeItem(LS_KEYS.HISTORY); ensureDefaults(); loadAll(); alert('Data di-reset'); }});
+
+    // Load
+    function loadAll(){ renderItemsTable(); renderLoanSelect(); renderHistory(); updateStats(); }
+
+    // Item CRUD
+    $('itemForm').addEventListener('submit',e=>{e.preventDefault(); saveItem();});
+    function saveItem(){
+      const id=$('itemId').value || uid('item_');
+      const name=$('itemName').value.trim();
+      const qty=parseInt($('itemQty').value)||0;
+      const loc=$('itemLoc').value.trim();
+      if(!name || qty<1) return alert('Nama dan jumlah harus diisi');
+      const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]');
+      const exists = items.find(i=>i.id===id);
+      if(exists){ exists.name=name; exists.qty=qty; exists.loc=loc; }
+      else items.push({id,name,qty,loc,available:qty});
+      localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify(items));
+      $('itemForm').reset(); $('itemId').value=''; loadAll();
+    }
+    function editItem(id){ const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); const it=items.find(x=>x.id===id); if(!it) return; $('itemId').value=it.id; $('itemName').value=it.name; $('itemQty').value=it.qty; $('itemLoc').value=it.loc; window.scrollTo({top:0,behavior:'smooth'}); }
+    function deleteItem(id){ if(!confirm('Hapus barang ini?')) return; let items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); items=items.filter(x=>x.id!==id); localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify(items)); loadAll(); }
+
+    function renderItemsTable(){ const tbody=q('#itemsTable tbody'); tbody.innerHTML=''; const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); const qstr=$('searchItem').value.toLowerCase(); items.filter(it=>!qstr||it.name.toLowerCase().includes(qstr)|| (it.loc||'').toLowerCase().includes(qstr)).forEach(it=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${escapeHtml(it.name)}</td><td>${it.available ?? it.qty} / ${it.qty}</td><td>${escapeHtml(it.loc||'--')}</td><td class="actions"><button class="btn secondary" onclick="editItem('${it.id}')">Edit</button><button class="btn" onclick="deleteItem('${it.id}')">Hapus</button></td>`;
+      tbody.appendChild(tr);
+    }); }
+
+    $('searchItem').addEventListener('input',renderItemsTable);
+
+    // Loan
+    $('loanForm').addEventListener('submit',e=>{e.preventDefault(); doLoan();});
+    function renderLoanSelect(){ const sel=$('loanItem'); sel.innerHTML=''; const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); items.forEach(it=>{ const opt=document.createElement('option'); opt.value=it.id; opt.textContent=`${it.name} — tersedia: ${it.available ?? it.qty}`; sel.appendChild(opt); }); }
+    function doLoan(){ const itemId=$('loanItem').value; const name=$('loanName').value.trim(); const qty=parseInt($('loanQty').value)||1; const due=$('loanDue').value||null; if(!name) return alert('Isi nama peminjam'); const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); const it=items.find(x=>x.id===itemId); if(!it) return alert('Barang tidak ditemukan'); const avail=it.available ?? it.qty; if(qty>avail) return alert('Jumlah melebihi ketersediaan'); // update
+      it.available = avail-qty;
+      localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify(items));
+      const history = JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]');
+      const rec = {id:uid('loan_'),itemId:itemId,itemName:it.name,borrower:name,qty,borrowDate:new Date().toISOString(),dueDate:due,status:'out'};
+      history.unshift(rec);
+      localStorage.setItem(LS_KEYS.HISTORY,JSON.stringify(history));
+      $('loanForm').reset(); renderLoanSelect(); loadAll();
     }
 
-    data.push({ nama, barang, status:"Dipinjam", tanggal });
-    updateTable();
-    alert("Data peminjaman tersimpan!");
-}
+    // Return
+    function markReturned(loanId){ if(!confirm('Tandai sebagai dikembalikan?')) return; const history=JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]'); const rec=history.find(h=>h.id===loanId); if(!rec) return; if(rec.status==='returned'){ alert('Sudah dikembalikan'); return; } rec.status='returned'; rec.returnDate=new Date().toISOString(); localStorage.setItem(LS_KEYS.HISTORY,JSON.stringify(history)); // restore item availability
+      const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); const it=items.find(x=>x.id===rec.itemId); if(it) it.available = (it.available ?? it.qty) + rec.qty; localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify(items)); loadAll(); }
 
-function tambahKembali(){
-    let nama = document.getElementById("kembali_nama").value;
-    let barang = document.getElementById("kembali_barang").value;
-    let tanggal = document.getElementById("kembali_tanggal").value;
+    // Render history
+    function renderHistory(){ const tbody=q('#historyTable tbody'); tbody.innerHTML=''; const history=JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]'); history.forEach(h=>{ const tr=document.createElement('tr'); const borrowDate=formatDate(h.borrowDate); const due=(h.dueDate?formatDate(h.dueDate):'-'); const status=(h.status==='out'?'<span style="color:#d97706">Dipinjam</span>':'<span style="color:#059669">Dikembalikan</span>'); const actions = h.status==='out'?`<button class="btn" onclick="markReturned('${h.id}')">Kembalikan</button>`:''; tr.innerHTML=`<td>${escapeHtml(h.itemName)}</td><td>${escapeHtml(h.borrower)}</td><td>${h.qty}</td><td>${borrowDate}</td><td>${due}</td><td>${status}</td><td>${actions}</td>`; tbody.appendChild(tr); }); updateStats(); }
 
-    if(nama=="" || barang=="" || tanggal==""){
-        alert("Lengkapi semua data!");
-        return;
-    }
+    // Stats
+    function updateStats(){ const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); const history=JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]'); const totalItems=items.length; const outCount=history.filter(h=>h.status==='out').reduce((s,h)=>s+h.qty,0); $('statItems').textContent=totalItems; $('statOut').textContent=outCount; $('statHistory').textContent=history.length; }
 
-    data.push({ nama, barang, status:"Dikembalikan", tanggal });
-    updateTable();
-    alert("Data pengembalian tersimpan!");
-}
+    // Utilities
+    function formatDate(iso){ if(!iso) return '-'; const d=new Date(iso); return d.toLocaleString(); }
+    function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function updateTable(){
-    let tbody = document.querySelector("#tabel tbody");
-    tbody.innerHTML = "";
-
-    data.forEach(item=>{
-        let row = `<tr>
-            <td>${item.nama}</td>
-            <td>${item.barang}</td>
-            <td>${item.status}</td>
-            <td>${item.tanggal}</td>
-        </tr>`;
-        tbody.innerHTML += row;
+    // Export / Import
+    $('exportBtn').addEventListener('click',()=>{
+      const data={items:JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'),history:JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]'),admins:JSON.parse(localStorage.getItem(LS_KEYS.ADMINS)||'[]')};
+      const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='peminjaman_backup_'+Date.now()+'.json'; a.click(); URL.revokeObjectURL(url);
     });
-}
-
-function exportDoc(){
-    let content = "DATA PEMINJAMAN & PENGEMBALIAN BARANG\n\n";
-
-    data.forEach((item, i)=>{
-        content += `${i+1}. Nama: ${item.nama}\n`;
-        content += `   Barang: ${item.barang}\n`;
-        content += `   Status: ${item.status}\n`;
-        content += `   Tanggal: ${item.tanggal}\n\n`;
+    $('importFile').addEventListener('change',e=>{
+      const f=e.target.files[0]; if(!f) return; const reader=new FileReader(); reader.onload=ev=>{ try{ const data=JSON.parse(ev.target.result); if(confirm('Impor akan menimpa data saat ini. Lanjutkan?')){ localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify(data.items||[])); localStorage.setItem(LS_KEYS.HISTORY,JSON.stringify(data.history||[])); localStorage.setItem(LS_KEYS.ADMINS,JSON.stringify(data.admins||[{username:'admin',password:'admin123'}])); loadAll(); alert('Impor selesai'); } }catch(err){alert('File tidak valid');}}; reader.readAsText(f);
     });
 
-    let blob = new Blob([content], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    // Small UI flow
+    function showApp(){ $('loginSection').classList.add('hidden'); $('appSection').classList.remove('hidden'); $('headerRight').textContent = currentAdmin? currentAdmin.username : ''; $('welcomeAdmin').textContent = 'Halo, '+(currentAdmin?currentAdmin.username:'Admin'); loadAll(); startClock(); }
+    function showLogin(){ $('loginSection').classList.remove('hidden'); $('appSection').classList.add('hidden'); }
 
-    let a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "data_peminjaman.docx";
-    a.click();
-}
-</script>
+    // Simple clock
+    let clockInt=null;
+    function startClock(){ if(clockInt) clearInterval(clockInt); const el=$('appClock'); function tick(){ el.textContent = new Date().toLocaleString(); } tick(); clockInt=setInterval(tick,1000); }
 
-</body>
+    // On load: if admin exists and auto-login? Keep showing login
+    (function init(){ window.editItem=editItem; window.deleteItem=deleteItem; window.markReturned=markReturned; loadAll(); })();
+
+  </script></body>
 </html>
