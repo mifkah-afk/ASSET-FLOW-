@@ -1,243 +1,416 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Aplikasi Peminjaman Barang — SMK</title>
-  <style>
-    :root{--accent:#1fb6a1;--muted:#6b7280;--bg:#f8fafc;--card:#ffffff}
-    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
-    body{margin:0;background:var(--bg);color:#0f172a}
-    header{background:linear-gradient(90deg,var(--accent),#2fa8ff);color:white;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
-    header h1{font-size:18px;margin:0}
-    .container{max-width:1100px;margin:20px auto;padding:16px}
-    .card{background:var(--card);border-radius:12px;box-shadow:0 6px 18px rgba(20,20,50,0.06);padding:16px;margin-bottom:16px}
-    .grid{display:grid;gap:12px}
-    .grid-3{grid-template-columns:repeat(3,1fr)}
-    .btn{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
-    .btn.secondary{background:#eef2ff;color:#1f2937}
-    input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e6e9ef}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:8px;border-bottom:1px solid #eef2f5;text-align:left}
-    .muted{color:var(--muted)}
-    .topbar{display:flex;gap:12px;align-items:center}
-    .hidden{display:none}
-    .actions button{margin-right:6px}
-    .stats{display:flex;gap:12px}
-    .stat{flex:1;padding:12px;border-radius:8px;background:linear-gradient(180deg,#fff,#f7fdff);text-align:center}
-    @media(max-width:800px){.grid-3{grid-template-columns:1fr}.topbar{flex-direction:column;align-items:stretch}}
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aplikasi Peminjaman Barang — SMK</title>
+  <style>
+    /* Definisi Warna Tema */
+    :root{
+      --accent:#1fb6a1;
+      --muted:#6b7280;
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --text:#0f172a;
+      --shadow-color:rgba(20,20,50,0.06);
+    }
+
+    /* DARK MODE */
+    body.dark-mode {
+      --accent:#4c8cff; /* A different, bright accent for dark mode */
+      --muted:#9ca3af;
+      --bg:#1f2937; /* Dark background */
+      --card:#374151; /* Darker card background */
+      --text:#f8fafc; /* Light text */
+      --shadow-color:rgba(0,0,0,0.4);
+    }
+
+    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{margin:0;background:var(--bg);color:var(--text)} /* Menggunakan var(--text) */
+    header{background:linear-gradient(90deg,var(--accent),#2fa8ff);color:white;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+    header h1{font-size:18px;margin:0}
+    .container{max-width:1100px;margin:20px auto;padding:16px}
+    /* Menggunakan var(--shadow-color) dan var(--card) */
+    .card{background:var(--card);border-radius:12px;box-shadow:0 6px 18px var(--shadow-color);padding:16px;margin-bottom:16px}
+    .grid{display:grid;gap:12px}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    .btn{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+    .btn.secondary{background:#eef2ff;color:#1f2937}
+
+    /* Penyesuaian input untuk Tema Gelap */
+    input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e6e9ef; color: var(--text); background: var(--card);}
+    body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+      background: #4b5563;
+      border-color: #4b5563;
+    }
+
+    /* Specific overrides for disabled/automatic inputs */
+    #loanBorrowDate {
+      background-color: #f1f5f9; /* Light mode specific disabled color */
+    }
+    body.dark-mode #loanBorrowDate{
+      background-color: #374151 !important; /* Dark mode specific disabled color */
+    }
+
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid #eef2f5;text-align:left}
+    body.dark-mode th, body.dark-mode td {
+      border-bottom: 1px solid #4b5563; /* Dark mode table separator */
+    }
+    .muted{color:var(--muted)}
+    .topbar{display:flex;gap:12px;align-items:center}
+    .hidden{display:none}
+    .actions button{margin-right:6px}
+    .stats{display:flex;gap:12px}
+    .stat{flex:1;padding:12px;border-radius:8px;background:linear-gradient(180deg,#fff,#f7fdff);text-align:center}
+    body.dark-mode .stat{
+      background:linear-gradient(180deg, #374151, #4b5563); /* Dark mode stat background */
+    }
+    @media(max-width:800px){.grid-3{grid-template-columns:1fr}.topbar{flex-direction:column;align-items:stretch}}
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Aplikasi Peminjaman Barang — SMK</h1>
-    <div id="headerRight" class="muted"></div>
-  </header>  <main class="container">
-    <!-- LOGIN -->
-    <section id="loginSection" class="card">
-      <h2>Masuk Admin</h2>
-      <p class="muted">Gunakan username & password default, atau buat admin baru melalui LocalStorage.</p>
-      <div style="max-width:420px">
-        <label>Username</label>
-        <input id="loginUser" value="admin" />
-        <label style="margin-top:8px">Password</label>
-        <input id="loginPass" type="password" value="admin123" />
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button id="loginBtn" class="btn">Masuk</button>
-          <button id="resetData" class="btn secondary">Reset Data</button>
-        </div>
-      </div>
-    </section><!-- APP -->
-<section id="appSection" class="hidden">
-  <div class="card topbar">
-    <div style="flex:1">
-      <strong id="welcomeAdmin">Welcome, Admin</strong>
-      <div class="muted" id="appClock"></div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button id="btnLogout" class="btn secondary">Logout</button>
-    </div>
-  </div>
+  <header>
+    <h1>Aplikasi Peminjaman Barang — SMK</h1>
+    <div id="headerRight" class="muted"></div>
+  </header>
+  <main class="container">
+        <section id="loginSection" class="card">
+      <h2>Masuk Admin</h2>
+      <p class="muted">Gunakan username & password default: admin / admin123.</p>
+      <div style="max-width:420px">
+        <label>Username</label>
+        <input id="loginUser" value="" />
+        <label style="margin-top:8px">Password</label>
+        <input id="loginPass" type="password" value="" />
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button id="loginBtn" class="btn">Masuk</button>
+          <button id="resetData" class="btn secondary">Reset Data</button>
+                    <button id="themeToggleLogin" class="btn secondary">☀️ Tema Terang</button>
+        </div>
+      </div>
+    </section>
+        <section id="appSection" class="hidden">
+      <div class="card topbar">
+        <div style="flex:1">
+          <strong id="welcomeAdmin">Welcome, Admin</strong>
+          <div class="muted" id="appClock"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+                    <button id="themeToggleApp" class="btn secondary" data-listener-attached="false">☀️ Tema Terang</button>
+          <button id="btnLogout" class="btn secondary">Logout</button>
+        </div>
+      </div>
 
-  <div class="grid grid-3">
-    <div class="card">
-      <h3>Statistik</h3>
-      <div class="stats" style="margin-top:10px">
-        <div class="stat">
-          <div class="muted">Total Barang</div>
-          <div id="statItems" style="font-size:20px;font-weight:700">0</div>
-        </div>
-        <div class="stat">
-          <div class="muted">Sedang Dipinjam</div>
-          <div id="statOut" style="font-size:20px;font-weight:700">0</div>
-        </div>
-        <div class="stat">
-          <div class="muted">Total Riwayat</div>
-          <div id="statHistory" style="font-size:20px;font-weight:700">0</div>
-        </div>
-      </div>
-    </div>
+      <div class="grid grid-3">
+        <div class="card" style="grid-column: span 2;">           <h3>Statistik Peminjaman</h3>
+          <div class="stats" style="margin-top:10px">
+            <div class="stat">
+              <div class="muted">Total Pinjaman Saat Ini</div>
+              <div id="statOut" style="font-size:20px;font-weight:700">0</div>
+            </div>
+            <div class="stat">
+              <div class="muted">Total Riwayat</div>
+              <div id="statHistory" style="font-size:20px;font-weight:700">0</div>
+            </div>
+          </div>
+        </div>
 
-    <div class="card">
-      <h3>Tambah / Edit Barang</h3>
-      <form id="itemForm">
-        <input type="hidden" id="itemId" />
-        <label>Nama Barang</label>
-        <input id="itemName" required />
-        <label>Jumlah</label>
-        <input id="itemQty" type="number" min="1" value="1" required />
-        <label>Lokasi / Keterangan</label>
-        <input id="itemLoc" />
-        <div style="margin-top:8px"><button class="btn">Simpan Barang</button></div>
-      </form>
-    </div>
+        <div class="card">
+          <h3>Form Peminjaman</h3>
+          <form id="loanForm">
+            <label>Nama Barang</label>
+            <input id="loanItemName" required placeholder="Ketik nama barang yang dipinjam" />
+            <label>Nama Peminjam</label>
+            <input id="loanName" required />
+            <label>Jumlah</label>
+            <input id="loanQty" type="number" min="1" value="1" required />
+            <label>Tanggal Pinjam (Otomatis)</label>
+            <input id="loanBorrowDate" disabled style="background-color: #f1f5f9; color: var(--muted);" />
+            <label style="margin-top:8px">Isi Foto (Bukti Pinjam)</label>
+            <input id="loanPhoto" type="file" accept="image/*" />
+            <div style="margin-top:12px"><button class="btn">Pinjam</button></div>
+          </form>
+        </div>
+      </div>
 
-    <div class="card">
-      <h3>Form Peminjaman</h3>
-      <form id="loanForm">
-        <label>Pilih Barang</label>
-        <select id="loanItem"></select>
-        <label>Nama Peminjam</label>
-        <input id="loanName" required />
-        <label>Jumlah</label>
-        <input id="loanQty" type="number" min="1" value="1" required />
-        <label>Tanggal Kembali (opsional)</label>
-        <input id="loanDue" type="date" />
-        <div style="margin-top:8px"><button class="btn">Pinjam</button></div>
-      </form>
-    </div>
-  </div>
+      <div class="card">
+        <h3>Daftar Peminjam</h3>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="searchHistory" placeholder="Cari nama peminjam atau barang..." />
+          <button id="exportBtn" class="btn secondary">Export JSON</button>
+        </div>
+        <div style="overflow:auto;max-height:450px">
+          <table id="historyTable">
+            <thead>
+              <tr>
+                <th>Barang</th>
+                <th>Peminjam</th>
+                <th>Qty</th>
+                <th>Tgl Pinjam</th>
+                <th>Tgl Kembali</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-  <div class="card">
-    <h3>Daftar Barang</h3>
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <input id="searchItem" placeholder="Cari nama atau lokasi..." />
-      <button id="exportBtn" class="btn secondary">Export JSON</button>
-      <input id="importFile" type="file" accept="application/json" />
-    </div>
-    <div style="overflow:auto;max-height:240px">
-      <table id="itemsTable"><thead><tr><th>Nama</th><th>Qty</th><th>Lokasi</th><th>Aksi</th></tr></thead><tbody></tbody></table>
-    </div>
-  </div>
+    <div id="returnModal" class="card hidden" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;width:90%;max-width:400px;border:1px solid var(--accent);">
+      <h3>Form Pengembalian</h3>
+      <form id="returnForm">
+        <input type="hidden" id="returnLoanId" />
+        <div class="muted" style="margin-bottom:10px">Barang: <strong id="returnItemInfo"></strong></div>
+        <label>Foto Bukti Kembali</label>
+        <input id="returnPhoto" type="file" accept="image/*" required />
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button type="submit" class="btn">Konfirmasi Kembali</button>
+          <button type="button" class="btn secondary" onclick="closeReturnModal()">Batal</button>
+        </div>
+      </form>
+    </div>
+    <div id="modalOverlay" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:5;"></div>
 
-  <div class="card">
-    <h3>Riwayat Peminjaman</h3>
-    <div style="overflow:auto;max-height:320px">
-      <table id="historyTable"><thead><tr><th>Barang</th><th>Peminjam</th><th>Qty</th><th>Tgl Pinjam</th><th>Tgl Kembali</th><th>Status</th><th>Aksi</th></tr></thead><tbody></tbody></table>
-    </div>
-  </div>
-</section>
+  </main>
+  <footer></footer>
 
-<footer style="text-align:center;color:var(--muted);margin-top:10px">Aplikasi sederhana — data disimpan di LocalStorage</footer>
+  <script>
+    // Simple localStorage-based app
+    const LS_KEYS = {HISTORY:'peminjaman_history_v2',ADMINS:'peminjaman_admins_v2'};
+    const LS_THEME_KEY = 'peminjaman_theme_preference'; // Key baru untuk tema
 
-  </main>  <script>
-    // Simple localStorage-based app
-    const LS_KEYS = {ITEMS:'peminjaman_items_v1',HISTORY:'peminjaman_history_v1',ADMINS:'peminjaman_admins_v1'};
+    // Default admin
+    function ensureDefaults(){
+      if(!localStorage.getItem(LS_KEYS.ADMINS)){
+        const admins = [{username:'admin',password:'admin123'}];
+        localStorage.setItem(LS_KEYS.ADMINS,JSON.stringify(admins));
+      }
+      if(!localStorage.getItem(LS_KEYS.HISTORY)) localStorage.setItem(LS_KEYS.HISTORY,JSON.stringify([]));
+    }
+    ensureDefaults();
 
-    // Default admin
-    function ensureDefaults(){
-      if(!localStorage.getItem(LS_KEYS.ADMINS)){
-        const admins = [{username:'admin',password:'admin123'}];
-        localStorage.setItem(LS_KEYS.ADMINS,JSON.stringify(admins));
-      }
-      if(!localStorage.getItem(LS_KEYS.ITEMS)) localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify([]));
-      if(!localStorage.getItem(LS_KEYS.HISTORY)) localStorage.setItem(LS_KEYS.HISTORY,JSON.stringify([]));
-    }
-    ensureDefaults();
+    // Helpers
+    const $ = id=>document.getElementById(id);
+    const q = sel=>document.querySelector(sel);
+    function uid(prefix='id'){return prefix+Date.now()+Math.floor(Math.random()*999)}
 
-    // Helpers
-    const $ = id=>document.getElementById(id);
-    const q = sel=>document.querySelector(sel);
-    function uid(prefix='id'){return prefix+Date.now()+Math.floor(Math.random()*999)}
+    // --- THEME LOGIC START ---
+    function toggleTheme() {
+      const body = document.body;
+      const isDarkMode = body.classList.toggle('dark-mode');
+      const newTheme = isDarkMode ? 'dark' : 'light';
+      
+      localStorage.setItem(LS_THEME_KEY, newTheme);
+      updateThemeButton(newTheme);
+    }
 
-    // Auth
-    let currentAdmin = null;
-    $('loginBtn').addEventListener('click',e=>{e.preventDefault();login()});
-    function login(){
-      const u=$('loginUser').value.trim();
-      const p=$('loginPass').value;
-      const admins = JSON.parse(localStorage.getItem(LS_KEYS.ADMINS)||'[]');
-      const found = admins.find(a=>a.username===u && a.password===p);
-      if(found){ currentAdmin=found; showApp(); } else alert('Login gagal — cek username/password');
-    }
-    $('btnLogout').addEventListener('click',()=>{currentAdmin=null; showLogin();});
-    $('resetData').addEventListener('click',()=>{ if(confirm('Reset semua data ke default?')){ localStorage.removeItem(LS_KEYS.ITEMS); localStorage.removeItem(LS_KEYS.HISTORY); ensureDefaults(); loadAll(); alert('Data di-reset'); }});
+    function updateThemeButton(theme) {
+        const isDark = theme === 'dark';
+        const text = isDark ? '🌙 Tema Gelap' : '☀️ Tema Terang';
+        
+        const btnLogin = $('themeToggleLogin');
+        const btnApp = $('themeToggleApp');
+        
+        if (btnLogin) btnLogin.innerHTML = text;
+        if (btnApp) btnApp.innerHTML = text;
+    }
 
-    // Load
-    function loadAll(){ renderItemsTable(); renderLoanSelect(); renderHistory(); updateStats(); }
+    function applyInitialTheme() {
+      const savedTheme = localStorage.getItem(LS_THEME_KEY) || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+      }
+      updateThemeButton(savedTheme);
+    }
+    // --- THEME LOGIC END ---
 
-    // Item CRUD
-    $('itemForm').addEventListener('submit',e=>{e.preventDefault(); saveItem();});
-    function saveItem(){
-      const id=$('itemId').value || uid('item_');
-      const name=$('itemName').value.trim();
-      const qty=parseInt($('itemQty').value)||0;
-      const loc=$('itemLoc').value.trim();
-      if(!name || qty<1) return alert('Nama dan jumlah harus diisi');
-      const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]');
-      const exists = items.find(i=>i.id===id);
-      if(exists){ exists.name=name; exists.qty=qty; exists.loc=loc; }
-      else items.push({id,name,qty,loc,available:qty});
-      localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify(items));
-      $('itemForm').reset(); $('itemId').value=''; loadAll();
-    }
-    function editItem(id){ const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); const it=items.find(x=>x.id===id); if(!it) return; $('itemId').value=it.id; $('itemName').value=it.name; $('itemQty').value=it.qty; $('itemLoc').value=it.loc; window.scrollTo({top:0,behavior:'smooth'}); }
-    function deleteItem(id){ if(!confirm('Hapus barang ini?')) return; let items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); items=items.filter(x=>x.id!==id); localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify(items)); loadAll(); }
+    // Auth
+    let currentAdmin = null;
+    $('loginBtn').addEventListener('click',e=>{e.preventDefault(); login()});
+    function login(){
+      const u=$('loginUser').value.trim();
+      const p=$('loginPass').value;
+      const admins = JSON.parse(localStorage.getItem(LS_KEYS.ADMINS)||'[]');
+      const found = admins.find(a=>a.username===u && a.password===p);
+      if(found){ currentAdmin=found; showApp(); } else alert('Login gagal — cek username/password');
+    }
+    $('btnLogout').addEventListener('click',()=>{currentAdmin=null; showLogin();});
+    $('resetData').addEventListener('click',()=>{ if(confirm('Reset semua data ke default?')){ localStorage.removeItem(LS_KEYS.HISTORY); ensureDefaults(); loadAll(); alert('Data di-reset'); }});
 
-    function renderItemsTable(){ const tbody=q('#itemsTable tbody'); tbody.innerHTML=''; const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); const qstr=$('searchItem').value.toLowerCase(); items.filter(it=>!qstr||it.name.toLowerCase().includes(qstr)|| (it.loc||'').toLowerCase().includes(qstr)).forEach(it=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${escapeHtml(it.name)}</td><td>${it.available ?? it.qty} / ${it.qty}</td><td>${escapeHtml(it.loc||'--')}</td><td class="actions"><button class="btn secondary" onclick="editItem('${it.id}')">Edit</button><button class="btn" onclick="deleteItem('${it.id}')">Hapus</button></td>`;
-      tbody.appendChild(tr);
-    }); }
+    // Load
+    function loadAll(){ renderHistory(); updateStats(); setLoanDate(); }
+    function setLoanDate(){ $('loanBorrowDate').value = new Date().toLocaleString(); }
 
-    $('searchItem').addEventListener('input',renderItemsTable);
+    // Loan
+    $('loanForm').addEventListener('submit',e=>{e.preventDefault(); doLoan();});
+    function doLoan(){
+      const itemName=$('loanItemName').value.trim();
+      const name=$('loanName').value.trim();
+      const qty=parseInt($('loanQty').value)||1;
+      const photoFile=$('loanPhoto').files[0];
 
-    // Loan
-    $('loanForm').addEventListener('submit',e=>{e.preventDefault(); doLoan();});
-    function renderLoanSelect(){ const sel=$('loanItem'); sel.innerHTML=''; const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); items.forEach(it=>{ const opt=document.createElement('option'); opt.value=it.id; opt.textContent=`${it.name} — tersedia: ${it.available ?? it.qty}`; sel.appendChild(opt); }); }
-    function doLoan(){ const itemId=$('loanItem').value; const name=$('loanName').value.trim(); const qty=parseInt($('loanQty').value)||1; const due=$('loanDue').value||null; if(!name) return alert('Isi nama peminjam'); const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); const it=items.find(x=>x.id===itemId); if(!it) return alert('Barang tidak ditemukan'); const avail=it.available ?? it.qty; if(qty>avail) return alert('Jumlah melebihi ketersediaan'); // update
-      it.available = avail-qty;
-      localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify(items));
-      const history = JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]');
-      const rec = {id:uid('loan_'),itemId:itemId,itemName:it.name,borrower:name,qty,borrowDate:new Date().toISOString(),dueDate:due,status:'out'};
-      history.unshift(rec);
-      localStorage.setItem(LS_KEYS.HISTORY,JSON.stringify(history));
-      $('loanForm').reset(); renderLoanSelect(); loadAll();
-    }
+      if(!itemName || !name) return alert('Nama Barang dan Nama Peminjam harus diisi');
+      if(qty < 1) return alert('Jumlah harus minimal 1');
 
-    // Return
-    function markReturned(loanId){ if(!confirm('Tandai sebagai dikembalikan?')) return; const history=JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]'); const rec=history.find(h=>h.id===loanId); if(!rec) return; if(rec.status==='returned'){ alert('Sudah dikembalikan'); return; } rec.status='returned'; rec.returnDate=new Date().toISOString(); localStorage.setItem(LS_KEYS.HISTORY,JSON.stringify(history)); // restore item availability
-      const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); const it=items.find(x=>x.id===rec.itemId); if(it) it.available = (it.available ?? it.qty) + rec.qty; localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify(items)); loadAll(); }
+      let photoBase64 = null;
+      const saveLoan = (base64) => {
+        const history = JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]');
+        const rec = {
+          id: uid('loan_'),
+          itemName: itemName,
+          borrower: name,
+          qty: qty,
+          borrowDate: new Date().toISOString(),
+          borrowPhoto: base64,
+          status: 'out'
+        };
+        history.unshift(rec);
+        localStorage.setItem(LS_KEYS.HISTORY,JSON.stringify(history));
+        $('loanForm').reset();
+        loadAll();
+        alert('Peminjaman berhasil dicatat!');
+      };
 
-    // Render history
-    function renderHistory(){ const tbody=q('#historyTable tbody'); tbody.innerHTML=''; const history=JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]'); history.forEach(h=>{ const tr=document.createElement('tr'); const borrowDate=formatDate(h.borrowDate); const due=(h.dueDate?formatDate(h.dueDate):'-'); const status=(h.status==='out'?'<span style="color:#d97706">Dipinjam</span>':'<span style="color:#059669">Dikembalikan</span>'); const actions = h.status==='out'?`<button class="btn" onclick="markReturned('${h.id}')">Kembalikan</button>`:''; tr.innerHTML=`<td>${escapeHtml(h.itemName)}</td><td>${escapeHtml(h.borrower)}</td><td>${h.qty}</td><td>${borrowDate}</td><td>${due}</td><td>${status}</td><td>${actions}</td>`; tbody.appendChild(tr); }); updateStats(); }
+      if(photoFile) {
+        const reader = new FileReader();
+        reader.onload = (e) => saveLoan(e.target.result);
+        reader.readAsDataURL(photoFile);
+      } else {
+        saveLoan(null);
+      }
+    }
 
-    // Stats
-    function updateStats(){ const items=JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'); const history=JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]'); const totalItems=items.length; const outCount=history.filter(h=>h.status==='out').reduce((s,h)=>s+h.qty,0); $('statItems').textContent=totalItems; $('statOut').textContent=outCount; $('statHistory').textContent=history.length; }
+    // Return - Trigger Modal
+    function openReturnModal(loanId) {
+      const history = JSON.parse(localStorage.getItem(LS_KEYS.HISTORY) || '[]');
+      const rec = history.find(h => h.id === loanId);
+      if (!rec) return;
 
-    // Utilities
-    function formatDate(iso){ if(!iso) return '-'; const d=new Date(iso); return d.toLocaleString(); }
-    function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+      $('returnLoanId').value = loanId;
+      $('returnItemInfo').textContent = `${rec.itemName} (${rec.borrower})`;
+      $('returnPhoto').value = null; // Reset input file
+      
+      $('returnModal').classList.remove('hidden');
+      $('modalOverlay').classList.remove('hidden');
+    }
 
-    // Export / Import
-    $('exportBtn').addEventListener('click',()=>{
-      const data={items:JSON.parse(localStorage.getItem(LS_KEYS.ITEMS)||'[]'),history:JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]'),admins:JSON.parse(localStorage.getItem(LS_KEYS.ADMINS)||'[]')};
-      const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='peminjaman_backup_'+Date.now()+'.json'; a.click(); URL.revokeObjectURL(url);
-    });
-    $('importFile').addEventListener('change',e=>{
-      const f=e.target.files[0]; if(!f) return; const reader=new FileReader(); reader.onload=ev=>{ try{ const data=JSON.parse(ev.target.result); if(confirm('Impor akan menimpa data saat ini. Lanjutkan?')){ localStorage.setItem(LS_KEYS.ITEMS,JSON.stringify(data.items||[])); localStorage.setItem(LS_KEYS.HISTORY,JSON.stringify(data.history||[])); localStorage.setItem(LS_KEYS.ADMINS,JSON.stringify(data.admins||[{username:'admin',password:'admin123'}])); loadAll(); alert('Impor selesai'); } }catch(err){alert('File tidak valid');}}; reader.readAsText(f);
-    });
+    function closeReturnModal() {
+      $('returnModal').classList.add('hidden');
+      $('modalOverlay').classList.add('hidden');
+    }
 
-    // Small UI flow
-    function showApp(){ $('loginSection').classList.add('hidden'); $('appSection').classList.remove('hidden'); $('headerRight').textContent = currentAdmin? currentAdmin.username : ''; $('welcomeAdmin').textContent = 'Halo, '+(currentAdmin?currentAdmin.username:'Admin'); loadAll(); startClock(); }
-    function showLogin(){ $('loginSection').classList.remove('hidden'); $('appSection').classList.add('hidden'); }
+    $('returnForm').addEventListener('submit',e=>{e.preventDefault(); markReturned();});
 
-    // Simple clock
-    let clockInt=null;
-    function startClock(){ if(clockInt) clearInterval(clockInt); const el=$('appClock'); function tick(){ el.textContent = new Date().toLocaleString(); } tick(); clockInt=setInterval(tick,1000); }
+    // Return - Process
+    function markReturned(){
+      const loanId = $('returnLoanId').value;
+      const photoFile = $('returnPhoto').files[0];
 
-    // On load: if admin exists and auto-login? Keep showing login
-    (function init(){ window.editItem=editItem; window.deleteItem=deleteItem; window.markReturned=markReturned; loadAll(); })();
+      if (!photoFile) return alert('Harap isi foto bukti pengembalian');
+      
+      const history = JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]');
+      const rec=history.find(h=>h.id===loanId);
+      if(!rec) return;
+      
+      if(rec.status==='returned'){ alert('Sudah dikembalikan'); return; }
 
-  </script></body>
+      const processReturn = (base64) => {
+        rec.status='returned';
+        rec.returnDate=new Date().toISOString();
+        rec.returnPhoto=base64; // Tambahkan bukti foto kembali
+
+        localStorage.setItem(LS_KEYS.HISTORY,JSON.stringify(history));
+        loadAll();
+        closeReturnModal();
+        alert('Pengembalian berhasil dicatat!');
+      };
+
+      const reader = new FileReader();
+      reader.onload = (e) => processReturn(e.target.result);
+      reader.readAsDataURL(photoFile);
+    }
+
+    // Render history
+    function renderHistory(){
+      const tbody=q('#historyTable tbody'); tbody.innerHTML='';
+      const history=JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]');
+      const qstr=$('searchHistory').value.toLowerCase();
+
+      history.filter(h => 
+        !qstr || h.itemName.toLowerCase().includes(qstr) || h.borrower.toLowerCase().includes(qstr)
+      ).forEach(h=>{
+        const tr=document.createElement('tr');
+        const borrowDate=formatDate(h.borrowDate);
+        const returnDate=(h.returnDate?formatDate(h.returnDate):'-');
+        const status=(h.status==='out'?'<span style="color:#d97706;font-weight:bold">Dipinjam</span>':'<span style="color:#059669;font-weight:bold">Dikembalikan</span>');
+        const actions = h.status==='out'?`<button class="btn" onclick="openReturnModal('${h.id}')">Kembalikan</button>`:'';
+        tr.innerHTML=`<td>${escapeHtml(h.itemName)}</td><td>${escapeHtml(h.borrower)}</td><td>${h.qty}</td><td>${borrowDate}</td><td>${returnDate}</td><td>${status}</td><td>${actions}</td>`;
+        tbody.appendChild(tr);
+      });
+      updateStats();
+    }
+    $('searchHistory').addEventListener('input',renderHistory);
+
+
+    // Stats
+    function updateStats(){
+      const history=JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]');
+      const outCount=history.filter(h=>h.status==='out').reduce((s,h)=>s+h.qty,0);
+      $('statOut').textContent=outCount;
+      $('statHistory').textContent=history.length;
+    }
+
+    // Utilities
+    function formatDate(iso){ if(!iso) return '-'; const d=new Date(iso); return d.toLocaleString(); }
+    function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // Export
+    $('exportBtn').addEventListener('click',()=>{
+      const data={history:JSON.parse(localStorage.getItem(LS_KEYS.HISTORY)||'[]'),admins:JSON.parse(localStorage.getItem(LS_KEYS.ADMINS)||'[]')};
+      const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='peminjaman_backup_'+Date.now()+'.json'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // Small UI flow
+    function showApp(){ 
+      $('loginSection').classList.add('hidden'); 
+      $('appSection').classList.remove('hidden'); 
+      $('headerRight').textContent = currentAdmin? currentAdmin.username : ''; 
+      $('welcomeAdmin').textContent = 'Halo, '+(currentAdmin?currentAdmin.username:'Admin'); 
+      
+      // Pasang Listener Tema untuk Halaman Aplikasi
+      const btnApp = $('themeToggleApp');
+      if (btnApp && btnApp.getAttribute('data-listener-attached') === 'false') {
+        btnApp.addEventListener('click', toggleTheme);
+        btnApp.setAttribute('data-listener-attached', 'true');
+      }
+
+      loadAll(); 
+      startClock(); 
+    }
+
+    function showLogin(){ $('loginSection').classList.remove('hidden'); $('appSection').classList.add('hidden'); }
+
+    // Simple clock
+    let clockInt=null;
+    function startClock(){ if(clockInt) clearInterval(clockInt); const el=$('appClock'); function tick(){ el.textContent = new Date().toLocaleString(); } tick(); clockInt=setInterval(tick,1000); }
+
+    // On load: initialization
+    (function init(){ 
+      window.openReturnModal=openReturnModal;
+      window.closeReturnModal=closeReturnModal;
+
+      // Pasang Listener Tema untuk Halaman Login
+      $('themeToggleLogin').addEventListener('click', toggleTheme);
+      
+      setLoanDate(); 
+      loadAll();
+      applyInitialTheme(); // Terapkan tema yang tersimpan
+    })();
+
+  </script>
+</body>
 </html>
